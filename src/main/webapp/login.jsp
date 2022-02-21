@@ -6,7 +6,77 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@include file="WEB-INF/jspf/declarativemethods.jspf" %>
-
+<%
+String userName = "";
+String password = "";
+boolean pref = false;
+String correctUserName = "joe2022";
+String correctPassword = "123456";
+%>
+<%
+	errors = new ArrayList();
+	if(request.getAttribute("btnLogin") != null){
+		userName = checkRequiredField(request.getParameter("txtUserName"), "Username");
+		password = checkRequiredField(request.getParameter("txtPassword"), "Password");
+		
+		if(password.equals(correctPassword) && userName.equals(correctUserName)){
+			if(request.getParameter("chkSave") != null){
+				Cookie user = new Cookie("userName", userName);
+				Cookie password1 = new Cookie("password", password);
+				Cookie save = new Cookie("save", "true");
+				pref = true;
+				user.setMaxAge(60*60);
+				user.setPath("JEEx7");
+				response.addCookie(user);
+				
+				password1.setMaxAge(60*60);
+				password1.setPath("JEEx7");
+				response.addCookie(password1);
+				
+				save.setMaxAge(60*60);
+				save.setPath("JEEx7");
+				response.addCookie(save);
+			}
+		}else{
+			if(request.getCookies() != null){
+				Cookie[] cookies = request.getCookies();
+				
+				for(Cookie c : cookies){
+					if(c.getName().equals("username") ||
+							c.getName().equals("password") ||
+							c.getName().equals("save")){
+						c.setMaxAge(0);
+						c.setPath("JEEx7");
+					}
+					response.addCookie(c);
+				}
+			}
+		}
+		session.setAttribute("authenticatedUser", "");
+		session.setAttribute("authenticated", true);
+		session.setMaxInactiveInterval(60);
+		
+		response.sendRedirect("index.jsp");
+	}else{
+		errors.add("Attempt Failed");
+	}
+	if(request.getCookies() != null){
+		Cookie[] cookies = request.getCookies();
+		
+		for(Cookie c : cookies){
+			
+			if(c.getName().equals("username")){
+			 	userName = c.getValue();
+			}
+			if(c.getName().equals("password")){
+			 	password = c.getValue();
+			}
+			if(c.getName().equals("save")){
+			 	pref = true;
+			}
+		}
+	}
+%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -29,7 +99,7 @@
                                     <td class="width-300">
                                         <input name="txtUserName" 
                                                class="width-300" 
-                                               value=''/>
+                                               value='<%= userName%>'/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -38,13 +108,15 @@
                                         <input type="password"
                                                name="txtPassword" 
                                                class="width-300" 
-                                               value=''/>
+                                               value='<%= password%>'/>
                                     </td>
                                 </tr>                                
                                 <tr>
                                     <td><input type="checkbox" name="chkSave" 
-                                               
-                                               value=''/>Save</td>
+                                               <%if(pref){ %>
+                                               		checked
+                                               <%} %>
+                                               value='<%= pref%>'/>Save</td>
                                     <td>                                        
                                         <input 
                                             type="submit" 

@@ -1,7 +1,14 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@include file="WEB-INF/jspf/declarativemethods.jspf" %>
 
+<%
+if(request.getAttribute("btnLogin") != null){
+	session.setAttribute("authenticatedUser", null);
+	session.setAttribute("authenticated", false);
+	session.setMaxInactiveInterval(0);
+}
 
+%>
 <!DOCTYPE html>
 <html>
     <head>
